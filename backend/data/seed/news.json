@@ -1,0 +1,35 @@
+[
+  {
+    "title": "Welcome to Winter Semester 2025/2026",
+    "content": "Dear students, welcome to the new academic year! Please check your schedules and register for courses.",
+    "contentHtml": "<p>Dear students, welcome to the new academic year!</p><p>Please check your schedules and register for courses.</p>",
+    "publishedAt": "2025-09-01T08:00:00Z",
+    "authorEmail": "marek.horvath@university.edu",
+    "authorName": "Ing. Marek Horváth, PhD.",
+    "isPublished": true,
+    "category": "announcement",
+    "priority": 10
+  },
+  {
+    "title": "Forensic Analysis - First Lecture",
+    "content": "The first lecture of Forensic Analysis will be held on Monday, September 15th at 09:10 in room N9-201.",
+    "contentHtml": "<p>The first lecture of <strong>Forensic Analysis</strong> will be held on Monday, September 15th at 09:10 in room N9-201.</p>",
+    "publishedAt": "2025-09-10T10:00:00Z",
+    "authorEmail": "marek.horvath@university.edu",
+    "authorName": "Ing. Marek Horváth, PhD.",
+    "isPublished": true,
+    "category": "course",
+    "priority": 5
+  },
+  {
+    "title": "Office Hours Update",
+    "content": "Office hours for Dr. Horváth are now available on Tuesday 13:00-15:00 and Wednesday 15:00-17:00.",
+    "contentHtml": "<p>Office hours for Dr. Horváth are now available:</p><ul><li>Tuesday 13:00-15:00</li><li>Wednesday 15:00-17:00</li></ul>",
+    "publishedAt": "2025-09-05T14:00:00Z",
+    "authorEmail": "marek.horvath@university.edu",
+    "authorName": "Ing. Marek Horváth, PhD.",
+    "isPublished": true,
+    "category": "info",
+    "priority": 3
+  }
+]

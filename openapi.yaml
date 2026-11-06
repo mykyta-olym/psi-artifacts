@@ -1,0 +1,3532 @@
+openapi: 3.0.3
+info:
+  title: MAIS Management System API
+  description: >-
+    Complete API specification for the MAIS University Management System.
+    This document covers all available endpoints including authentication,
+    user management, courses, grades, schedules, and more.
+    
+    
+    **Quick Start:**
+    1. Use `POST /auth/login` to get JWT token
+    2. Add `Authorization: Bearer <token>` header to all requests
+    3. See Swagger UI at http://localhost:5000/swagger for interactive docs
+    
+    
+    **Test Accounts:**
+    - Teacher: `marek.horvath@university.edu` / `teacher123`
+    - Student: `kyrylo.bulyk@student.university.edu` / `student123`
+  version: 1.0.0
+  contact:
+    name: MAIS Development Team
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:5000/api
+    description: ASP.NET dev server (this repo)
+  - url: http://localhost:5179/api
+    description: Local development server (ASP.NET default suggested)
+  - url: http://localhost:8080/api
+    description: Local development server (Spring Boot)
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Authentication
+    description: Login, logout, token refresh, password reset
+  - name: Profile
+    description: Current user profile
+  - name: Students
+    description: Student management
+  - name: Faculty
+    description: Faculty/teacher management
+  - name: Courses
+    description: Course management
+  - name: Schedule
+    description: Timetable and schedule events
+  - name: Gradebook
+    description: Grades and assignments
+  - name: Attendance
+    description: Attendance tracking
+  - name: Surveys
+    description: Course feedback surveys
+  - name: Chat
+    description: Messaging system
+  - name: Rooms
+    description: Room management
+  - name: Equipment
+    description: Equipment management
+  - name: News
+    description: News and announcements
+  - name: Exams
+    description: Exam registration
+  - name: Thesis
+    description: Thesis topics and supervision
+  - name: Payments
+    description: Payment management
+  - name: ClassGroups
+    description: Class group management
+  - name: KnowledgeBase
+    description: Knowledge base articles
+  - name: Activities
+    description: Activity tracking
+  - name: Database
+    description: Database administration
+
+paths:
+  # ============ DATABASE MANAGEMENT ============
+  /db/summary:
+    get:
+      tags: [Database]
+      summary: Database summary and connectivity
+      operationId: db_summary
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbSummary'
+  /db/reseed:
+    post:
+      tags: [Database]
+      summary: Reseed database from JSON seeds
+      operationId: db_reseed
+      parameters:
+        - in: query
+          name: reset
+          schema: { type: boolean, default: false }
+          description: When true, clears all tables before seeding
+      responses:
+        '200':
+          description: Resulting summary after reseed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbSummary'
+  /db/clear:
+    post:
+      tags: [Database]
+      summary: Clear specific database tables
+      operationId: db_clear
+      parameters:
+        - in: query
+          name: schedules
+          schema: { type: boolean, default: false }
+          description: Clear timetable entries
+        - in: query
+          name: enrollments
+          schema: { type: boolean, default: false }
+          description: Clear student enrollments
+        - in: query
+          name: exams
+          schema: { type: boolean, default: false }
+          description: Clear exam terms and registrations
+        - in: query
+          name: grades
+          schema: { type: boolean, default: false }
+          description: Clear course grades
+        - in: query
+          name: thesis
+          schema: { type: boolean, default: false }
+          description: Clear thesis topics, requests, and supervisions
+      responses:
+        '200':
+          description: Tables cleared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DbSummary'
+  /db/upgrade/students:
+    post:
+      tags: [Database]
+      summary: Upgrade students table schema
+      operationId: db_upgrade_students
+      description: >-
+        Add new profile columns to Students table if they don't exist.
+        Adds fields like Phone, Address, IsicCardNumber, BirthDate, PersonId, IsArchived, etc.
+      responses:
+        '200':
+          description: Schema upgraded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+        '500':
+          description: Upgrade failed
+  /db/sync-courses-faculty-program:
+    post:
+      tags: [Database]
+      summary: Sync faculty and program to courses
+      operationId: db_sync_courses
+      description: >-
+        Syncs Faculty and Program fields from teacher profiles to courses that don't have them.
+        Looks up teachers assigned to courses via timetable entries.
+      responses:
+        '200':
+          description: Sync completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated: { type: integer }
+                  total: { type: integer }
+                  message: { type: string }
+  /db/fix-course-types:
+    post:
+      tags: [Database]
+      summary: Fix course TypeSk values
+      operationId: db_fix_course_types
+      description: >-
+        Normalizes TypeSk values in courses table.
+        Converts various formats to standard 'P+CL' or 'S'.
+      responses:
+        '200':
+          description: Types fixed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fixedCount: { type: integer }
+                  total: { type: integer }
+                  message: { type: string }
+
+  # ============ AUTHENTICATION ============
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Sign in with email and password
+      operationId: auth_login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      operationId: auth_refresh
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid or expired refresh token
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Invalidate current refresh token (server-side logout)
+      operationId: auth_logout
+      responses:
+        '204':
+          description: Logged out
+  /auth/session:
+    get:
+      tags: [Authentication]
+      summary: Get current session info
+      operationId: auth_session
+      responses:
+        '200':
+          description: Session info
+  /auth/forgot-password/request:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      operationId: auth_forgot_password_request
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Reset request sent
+  /auth/forgot-password/resend:
+    post:
+      tags: [Authentication]
+      summary: Resend password reset code
+      operationId: auth_forgot_password_resend
+      security: []
+      responses:
+        '200':
+          description: Code resent
+  /auth/forgot-password/verify-token:
+    post:
+      tags: [Authentication]
+      summary: Verify reset token
+      operationId: auth_forgot_password_verify_token
+      security: []
+      responses:
+        '200':
+          description: Token valid
+  /auth/forgot-password/verify-code:
+    post:
+      tags: [Authentication]
+      summary: Verify 6-digit reset code
+      operationId: auth_forgot_password_verify_code
+      security: []
+      responses:
+        '200':
+          description: Code valid
+  /auth/forgot-password/reset:
+    post:
+      tags: [Authentication]
+      summary: Reset password with token
+      operationId: auth_forgot_password_reset
+      security: []
+      responses:
+        '200':
+          description: Password reset successful
+
+  # ============ PROFILE & USERS ============
+
+  # ============ PROFILE & USERS ============
+  /me:
+    get:
+      tags: [Profile]
+      summary: Get current user's profile summary
+      operationId: me_get
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+    put:
+      tags: [Profile]
+      summary: Update current user's profile
+      operationId: me_update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+  /studies/me:
+    get:
+      tags: [Profile]
+      summary: Get study info for current user
+      operationId: studies_me
+      responses:
+        '200':
+          description: Study info
+  /users/change-password:
+    post:
+      tags: [Profile]
+      summary: Change user password
+      operationId: users_change_password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string }
+                newPassword: { type: string }
+      responses:
+        '200':
+          description: Password changed
+  /users/password-status:
+    get:
+      tags: [Profile]
+      summary: Check if password change is required
+      operationId: users_password_status
+      responses:
+        '200':
+          description: Password status
+
+  /users/{email}/temporary-password:
+    get:
+      summary: Get temporary password for a newly created user (teachers only)
+      operationId: users_get_temporary_password
+      description: >-
+        Returns the temporary password for a user that was just created.
+        The temporary password is cleared after the first successful login.
+        Only accessible by teachers for administrative purposes.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+          description: User email address
+      responses:
+        '200':
+          description: Temporary password retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [email, role, temporaryPassword, createdAt, message]
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    description: User email address
+                  role:
+                    type: string
+                    enum: [student, teacher]
+                    description: User role
+                  fullName:
+                    type: string
+                    nullable: true
+                    description: User full name (if available)
+                  temporaryPassword:
+                    type: string
+                    description: Plain text temporary password
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: When the credential was created
+                  message:
+                    type: string
+                    description: Additional information about password availability
+        '400':
+          description: Email is required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Unauthorized - requires teacher role
+        '404':
+          description: User not found or temporary password not available
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+  /user-preferences:
+    get:
+      tags: [Profile]
+      summary: Get user preferences
+      operationId: user_preferences_get
+      responses:
+        '200':
+          description: User preferences
+    put:
+      tags: [Profile]
+      summary: Update user preferences
+      operationId: user_preferences_update
+      responses:
+        '200':
+          description: Preferences updated
+  /user-preferences/{key}:
+    delete:
+      tags: [Profile]
+      summary: Delete preference by key
+      operationId: user_preferences_delete
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Preference deleted
+
+  # ============ STUDENTS ============
+
+  # ============ STUDENTS ============
+  /students:
+    get:
+      tags: [Students]
+      summary: List students
+      operationId: students_list
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Free-text search (name, email)
+        - in: query
+          name: faculty
+          schema: { type: string }
+        - in: query
+          name: program
+          schema: { type: string }
+        - in: query
+          name: year
+          schema: { type: integer }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+          description: Page number (1-based). When provided with pageSize, the response is paged and X-Total-Count header is set.
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 200 }
+          description: Page size.
+        - in: query
+          name: sort
+          schema: { type: string, enum: [fullName, email, studyYear, id] }
+          description: Sort key (defaults to fullName)
+        - in: query
+          name: order
+          schema: { type: string, enum: [asc, desc] }
+          description: Sort order (defaults to asc)
+      responses:
+        '200':
+          description: Student list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Student' }
+    post:
+      tags: [Students]
+      summary: Create student
+      operationId: students_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreate'
+      responses:
+        '201':
+          description: Student created
+  /students/{id}:
+    get:
+      tags: [Students]
+      summary: Get student by id
+      operationId: students_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404': { description: Not found }
+    put:
+      tags: [Students]
+      summary: Update student
+      operationId: students_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Student updated
+    delete:
+      tags: [Students]
+      summary: Delete student
+      operationId: students_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Student deleted
+  /students/{id}/profile:
+    put:
+      tags: [Students]
+      summary: Update student profile
+      operationId: students_update_profile
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Profile updated
+  /students/{id}/graduation-status:
+    put:
+      tags: [Students]
+      summary: Update student graduation status
+      operationId: students_graduation_status
+      description: Update graduation tracking information for a student (thesis, exams, etc.)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                thesisStatus: { type: string }
+                thesisDefenseDate: { type: string, format: date-time, nullable: true }
+                thesisGrade: { type: string, nullable: true }
+                stateExamStatus: { type: string }
+                stateExamDate: { type: string, format: date-time, nullable: true }
+                stateExamGrade: { type: string, nullable: true }
+                expectedGraduationDate: { type: string, format: date-time, nullable: true }
+                actualGraduationDate: { type: string, format: date-time, nullable: true }
+                diplomaNumber: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Graduation status updated
+        '404':
+          description: Student not found
+  /students/by-email/{email}:
+    get:
+      tags: [Students]
+      summary: Get student by email
+      operationId: students_get_by_email
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Student
+  /students/batch:
+    put:
+      tags: [Students]
+      summary: Batch update students
+      operationId: students_batch_update
+      responses:
+        '200':
+          description: Students updated
+  /students/{id}/enrollments:
+    get:
+      tags: [Students]
+      summary: Get student enrollments
+      operationId: students_enrollments
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Enrollments
+  /students/{id}/grades:
+    get:
+      tags: [Students]
+      summary: Get all student grades
+      operationId: students_grades
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Grades
+
+  # ============ FACULTY ============
+
+  # ============ FACULTY ============
+  /faculty:
+    get:
+      tags: [Faculty]
+      summary: List faculty members
+      operationId: faculty_list
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Free-text search (name, email)
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 200 }
+        - in: query
+          name: sort
+          schema: { type: string, enum: [fullName, email, rating, id] }
+        - in: query
+          name: order
+          schema: { type: string, enum: [asc, desc] }
+      responses:
+        '200':
+          description: Faculty list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Faculty' }
+    post:
+      tags: [Faculty]
+      summary: Create faculty member
+      operationId: faculty_create
+      responses:
+        '201':
+          description: Faculty created
+  /faculty/{id}:
+    get:
+      tags: [Faculty]
+      summary: Get faculty member by id
+      operationId: faculty_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Faculty member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Faculty'
+        '404': { description: Not found }
+    put:
+      tags: [Faculty]
+      summary: Update faculty member
+      operationId: faculty_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Faculty updated
+    delete:
+      tags: [Faculty]
+      summary: Delete faculty member
+      operationId: faculty_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Faculty deleted
+  /faculty/by-email/{email}:
+    get:
+      tags: [Faculty]
+      summary: Get faculty by email
+      operationId: faculty_get_by_email
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Faculty member
+  /faculty/{email}/profile:
+    put:
+      tags: [Faculty]
+      summary: Update faculty profile
+      operationId: faculty_update_profile
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Profile updated
+  /faculty/{teacherId}/rating:
+    get:
+      tags: [Faculty]
+      summary: Get teacher rating statistics
+      operationId: faculty_rating_get
+      parameters:
+        - in: path
+          name: teacherId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Rating statistics
+    post:
+      tags: [Faculty]
+      summary: Submit/update teacher rating
+      operationId: faculty_rating_submit
+      parameters:
+        - in: path
+          name: teacherId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Rating submitted
+  /faculty/{teacherId}/rating/student/{studentId}:
+    get:
+      tags: [Faculty]
+      summary: Get student's rating for teacher
+      operationId: faculty_rating_student
+      parameters:
+        - in: path
+          name: teacherId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Student rating
+  /faculty/{teacherId}/ratings:
+    get:
+      tags: [Faculty]
+      summary: Get all ratings for teacher (paginated)
+      operationId: faculty_ratings_list
+      parameters:
+        - in: path
+          name: teacherId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Ratings list
+  /faculty/{teacherId}/rating/{ratingId}:
+    delete:
+      tags: [Faculty]
+      summary: Delete a rating
+      operationId: faculty_rating_delete
+      parameters:
+        - in: path
+          name: teacherId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: ratingId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Rating deleted
+        '404':
+          description: Rating not found
+
+  # ============ COURSES ============
+
+  # ============ COURSES ============
+  /courses:
+    get:
+      tags: [Courses]
+      summary: List courses
+      operationId: courses_list
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Free-text search (code or names)
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 200 }
+        - in: query
+          name: sort
+          schema: { type: string, enum: [name, code, credits] }
+        - in: query
+          name: order
+          schema: { type: string, enum: [asc, desc] }
+      responses:
+        '200':
+          description: Course list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Course' }
+  /courses/{code}:
+    get:
+      tags: [Courses]
+      summary: Get course by code
+      operationId: courses_get
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '404': { description: Not found }
+  /courses/manage:
+    get:
+      tags: [Courses]
+      summary: List courses with filtering (management)
+      operationId: courses_manage_list
+      responses:
+        '200':
+          description: Course list
+    post:
+      tags: [Courses]
+      summary: Create course
+      operationId: courses_manage_create
+      responses:
+        '201':
+          description: Course created
+  /courses/manage/{code}:
+    put:
+      tags: [Courses]
+      summary: Update course
+      operationId: courses_manage_update
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Course updated
+    delete:
+      tags: [Courses]
+      summary: Delete course
+      operationId: courses_manage_delete
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Course deleted
+  /courses/manage/faculties/distinct:
+    get:
+      tags: [Courses]
+      summary: Get distinct faculties from courses
+      operationId: courses_faculties_distinct
+      description: Returns a list of unique faculty names from all courses
+      responses:
+        '200':
+          description: List of distinct faculties
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: string }
+  /courses/manage/programs/distinct:
+    get:
+      tags: [Courses]
+      summary: Get distinct programs from courses
+      operationId: courses_programs_distinct
+      description: Returns a list of unique program names from all courses, optionally filtered by faculty
+      parameters:
+        - in: query
+          name: faculty
+          schema: { type: string }
+          description: Filter programs by faculty
+      responses:
+        '200':
+          description: List of distinct programs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: string }
+  /courses/{code}/enrollment-readiness:
+    get:
+      tags: [Courses]
+      summary: Check course enrollment readiness
+      operationId: courses_enrollment_readiness
+      description: >-
+        Check if a course is ready for student enrollment.
+        Returns schedule events, class groups, and enrollment statistics.
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+          description: Course code
+      responses:
+        '200':
+          description: Enrollment readiness information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  courseCode: { type: string }
+                  courseName: { type: string }
+                  hasScheduleEvents: { type: boolean }
+                  scheduleEventCount: { type: integer }
+                  hasClassGroups: { type: boolean }
+                  classGroupCount: { type: integer }
+                  enrollmentCount: { type: integer }
+                  events:
+                    type: array
+                    items:
+                      type: object
+                  classGroups:
+                    type: array
+                    items:
+                      type: object
+        '404':
+          description: Course not found
+  /courses/{code}/grading-scheme:
+    get:
+      tags: [Courses]
+      summary: Get grading scheme for course
+      operationId: courses_grading_scheme_get
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Grading scheme
+    put:
+      tags: [Courses]
+      summary: Update grading scheme
+      operationId: courses_grading_scheme_update
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Scheme updated
+
+  # ============ CATALOG ============
+  /catalog/departments:
+    get:
+      tags: [Courses]
+      summary: List departments
+      operationId: catalog_departments
+      responses:
+        '200':
+          description: Departments
+    post:
+      tags: [Courses]
+      summary: Create department
+      operationId: catalog_departments_create
+      responses:
+        '201':
+          description: Department created
+  /catalog/departments/{id}:
+    put:
+      tags: [Courses]
+      summary: Update department
+      operationId: catalog_departments_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Department updated
+    delete:
+      tags: [Courses]
+      summary: Delete department
+      operationId: catalog_departments_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Department deleted
+  /catalog/programs:
+    get:
+      tags: [Courses]
+      summary: List programs
+      operationId: catalog_programs
+      responses:
+        '200':
+          description: Programs
+    post:
+      tags: [Courses]
+      summary: Create program
+      operationId: catalog_programs_create
+      responses:
+        '201':
+          description: Program created
+  /catalog/programs/{id}:
+    put:
+      tags: [Courses]
+      summary: Update program
+      operationId: catalog_programs_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Program updated
+    delete:
+      tags: [Courses]
+      summary: Delete program
+      operationId: catalog_programs_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Program deleted
+  /catalog/faculty-options:
+    get:
+      tags: [Courses]
+      summary: List faculty options
+      operationId: catalog_faculty_options
+      responses:
+        '200':
+          description: Faculty options
+
+  # ============ SCHEDULE ============
+
+  # ============ SCHEDULE ============
+  /teachers/{email}/courses:
+    get:
+      tags: [Courses]
+      summary: Get courses taught by a teacher
+      operationId: teacher_courses
+      description: >-
+        Returns all courses that a teacher teaches based on their timetable entries
+        and faculty subjects. Courses are extracted from schedule events and faculty profile.
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+          description: Teacher email address
+      responses:
+        '200':
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Course' }
+
+  /teachers/{email}/courses/{code}/roster:
+    get:
+      tags: [Gradebook]
+      summary: Get course roster (enrolled students)
+      operationId: teacher_course_roster
+      description: >-
+        Returns the roster (list of enrolled students) for a specific course taught by a teacher.
+        Includes schedule entries and student details.
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+          description: Teacher email address
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+          description: Course code
+      responses:
+        '200':
+          description: Course roster
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        courseCode: { type: string }
+                        day: { type: string }
+                        slot: { type: string }
+                        room: { type: string }
+                        type: { type: string }
+                        groupKeys: { type: string }
+                  roster:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        studentId: { type: string }
+                        personId: { type: string }
+                        studentEmail: { type: string, format: email }
+                        studentName: { type: string }
+                        courseCode: { type: string }
+                        scheduleEventId: { type: string }
+                        groupKey: { type: string, nullable: true }
+        '400':
+          description: Missing course code
+
+  /teachers/{email}/timetable:
+    get:
+      tags: [Schedule]
+      summary: Teacher timetable entries
+      operationId: teacher_timetable
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Timetable
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TimetableEntry' }
+
+  /schedule/events:
+    get:
+      tags: [Schedule]
+      summary: Flattened schedule events for UI
+      operationId: schedule_events
+      parameters:
+        - in: query
+          name: teacherEmail
+          schema: { type: string, format: email }
+        - in: query
+          name: day
+          schema: { type: string }
+          description: Monday..Sunday
+        - in: query
+          name: room
+          schema: { type: string }
+        - in: query
+          name: courseCode
+          schema: { type: string }
+      responses:
+        '200':
+          description: Events
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ScheduleEvent' }
+    post:
+      tags: [Schedule]
+      summary: Create schedule event
+      operationId: schedule_events_create
+      responses:
+        '201':
+          description: Event created
+  /schedule/events/{id}:
+    put:
+      tags: [Schedule]
+      summary: Update schedule event
+      operationId: schedule_events_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Event updated
+    delete:
+      tags: [Schedule]
+      summary: Delete schedule event
+      operationId: schedule_events_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Event deleted
+  /schedule/events/assign-teacher:
+    post:
+      tags: [Schedule]
+      summary: Bulk assign teacher to events
+      operationId: schedule_events_assign_teacher
+      responses:
+        '200':
+          description: Teacher assigned
+
+  # ============ GRADEBOOK ============
+
+  # ============ GRADEBOOK ============
+  /teachers/{email}/gradebook:
+    get:
+      tags: [Gradebook]
+      summary: Aggregate gradebook for a teacher
+      operationId: gradebook_teacher
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Teacher gradebook payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherGradebook'
+  /teachers/{email}/classes:
+    get:
+      tags: [Gradebook]
+      summary: Get teacher's classes
+      operationId: teacher_classes
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Classes
+  /teachers/{email}/courses/{code}/grades:
+    get:
+      tags: [Gradebook]
+      summary: Get course grades
+      operationId: teacher_course_grades
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Grades
+
+  /students/{id}/gradebook:
+    get:
+      tags: [Gradebook]
+      summary: Aggregate gradebook for a student
+      operationId: gradebook_student
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Student gradebook payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGradebook'
+
+  /grades:
+    get:
+      tags: [Gradebook]
+      summary: Get grades
+      operationId: grades_get
+      responses:
+        '200':
+          description: Grades
+    put:
+      tags: [Gradebook]
+      summary: Upsert course grades
+      operationId: grades_upsert
+      responses:
+        '200':
+          description: Grades updated
+
+  # ============ ASSIGNMENTS ============
+  /teachers/{email}/courses/{code}/assignments:
+    get:
+      tags: [Gradebook]
+      summary: List assignments for course
+      operationId: assignments_list
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Assignments
+    put:
+      tags: [Gradebook]
+      summary: Update assignments
+      operationId: assignments_update
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Assignments updated
+  /teachers/{email}/courses/{code}/assignments/{assignmentId}:
+    delete:
+      tags: [Gradebook]
+      summary: Delete assignment
+      operationId: assignments_delete
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+        - in: path
+          name: assignmentId
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Assignment deleted
+  /teachers/{email}/courses/{code}/assignment-grades:
+    get:
+      tags: [Gradebook]
+      summary: Get assignment grades
+      operationId: assignment_grades_get
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Assignment grades
+    put:
+      tags: [Gradebook]
+      summary: Update assignment grades
+      operationId: assignment_grades_update
+      parameters:
+        - in: path
+          name: email
+          required: true
+          schema: { type: string, format: email }
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Grades updated
+
+  # ============ ATTENDANCE ============
+  /attendance/course/{courseCode}:
+    get:
+      tags: [Attendance]
+      summary: Course attendance records
+      operationId: attendance_course
+      parameters:
+        - in: path
+          name: courseCode
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Attendance records
+  /attendance/student/{studentId}:
+    get:
+      tags: [Attendance]
+      summary: Student attendance
+      operationId: attendance_student
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Attendance records
+  /attendance/bulk:
+    post:
+      tags: [Attendance]
+      summary: Bulk record attendance
+      operationId: attendance_bulk
+      responses:
+        '200':
+          description: Attendance recorded
+  /attendance/stats/course/{courseCode}:
+    get:
+      tags: [Attendance]
+      summary: Course attendance stats
+      operationId: attendance_stats_course
+      parameters:
+        - in: path
+          name: courseCode
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Stats
+  /attendance/stats/student/{studentId}:
+    get:
+      tags: [Attendance]
+      summary: Student attendance stats
+      operationId: attendance_stats_student
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Stats
+  /attendance/teacher/{teacherEmail}/summary:
+    get:
+      tags: [Attendance]
+      summary: Teacher attendance summary
+      operationId: attendance_teacher_summary
+      description: Get attendance summary for teacher's classes grouped by course
+      parameters:
+        - in: path
+          name: teacherEmail
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Teacher attendance summary
+  /attendance/{id}:
+    delete:
+      tags: [Attendance]
+      summary: Delete attendance record
+      operationId: attendance_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Record deleted
+        '404':
+          description: Record not found
+
+  # ============ SURVEYS ============
+  /surveys:
+    get:
+      tags: [Surveys]
+      summary: List surveys (teacher)
+      operationId: surveys_list
+      responses:
+        '200':
+          description: Surveys
+    post:
+      tags: [Surveys]
+      summary: Create survey
+      operationId: surveys_create
+      responses:
+        '201':
+          description: Survey created
+  /surveys/students:
+    get:
+      tags: [Surveys]
+      summary: List surveys for students
+      operationId: surveys_students
+      responses:
+        '200':
+          description: Surveys
+  /surveys/students/filters:
+    get:
+      tags: [Surveys]
+      summary: Student targeting filters
+      operationId: surveys_students_filters
+      responses:
+        '200':
+          description: Filters
+  /surveys/{id}:
+    get:
+      tags: [Surveys]
+      summary: Get survey details
+      operationId: surveys_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Survey
+    put:
+      tags: [Surveys]
+      summary: Update survey
+      operationId: surveys_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Survey updated
+    delete:
+      tags: [Surveys]
+      summary: Delete survey
+      operationId: surveys_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Survey deleted
+  /surveys/{id}/respond:
+    post:
+      tags: [Surveys]
+      summary: Submit survey response
+      operationId: surveys_respond
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Response submitted
+  /surveys/{id}/responses:
+    get:
+      tags: [Surveys]
+      summary: Get survey responses
+      operationId: surveys_responses
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Responses
+  /surveys/{id}/analytics:
+    get:
+      tags: [Surveys]
+      summary: Survey analytics
+      operationId: surveys_analytics
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Analytics
+
+  # ============ CHAT ============
+  /chat/threads:
+    get:
+      tags: [Chat]
+      summary: List chat threads
+      operationId: chat_threads_list
+      responses:
+        '200':
+          description: Threads
+    post:
+      tags: [Chat]
+      summary: Create chat thread
+      operationId: chat_threads_create
+      responses:
+        '201':
+          description: Thread created
+  /chat/threads/{id}:
+    get:
+      tags: [Chat]
+      summary: Get chat thread
+      operationId: chat_threads_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Thread
+    patch:
+      tags: [Chat]
+      summary: Update chat thread
+      operationId: chat_threads_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Thread updated
+    delete:
+      tags: [Chat]
+      summary: Delete chat thread
+      operationId: chat_threads_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Thread deleted
+  /chat/threads/{id}/messages:
+    get:
+      tags: [Chat]
+      summary: Get messages in thread
+      operationId: chat_messages_list
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Messages
+    post:
+      tags: [Chat]
+      summary: Send message
+      operationId: chat_messages_send
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '201':
+          description: Message sent
+  /chat/threads/{id}/messages/{msgId}:
+    patch:
+      tags: [Chat]
+      summary: Edit message
+      operationId: chat_messages_edit
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: msgId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Message edited
+    delete:
+      tags: [Chat]
+      summary: Delete message
+      operationId: chat_messages_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: msgId
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Message deleted
+  /chat/threads/{id}/messages/{msgId}/reactions:
+    post:
+      tags: [Chat]
+      summary: Add reaction to message
+      operationId: chat_reactions_add
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: msgId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Reaction added
+    delete:
+      tags: [Chat]
+      summary: Remove reaction
+      operationId: chat_reactions_remove
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: msgId
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Reaction removed
+  /chat/threads/{id}/reads:
+    post:
+      tags: [Chat]
+      summary: Mark thread as read
+      operationId: chat_mark_read
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Marked as read
+  /chat/threads/{id}/pin:
+    post:
+      tags: [Chat]
+      summary: Pin/unpin thread
+      operationId: chat_pin
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Pin toggled
+  /chat/threads/{id}/clear:
+    post:
+      tags: [Chat]
+      summary: Clear thread history
+      operationId: chat_clear
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: History cleared
+  /chat/threads/{id}/attachments:
+    post:
+      tags: [Chat]
+      summary: Upload attachment
+      operationId: chat_attachments_upload
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Attachment uploaded
+  /chat/threads/{id}/ai/settings:
+    get:
+      tags: [Chat]
+      summary: Get AI settings for thread
+      operationId: chat_ai_settings_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: AI settings
+    put:
+      tags: [Chat]
+      summary: Update AI settings
+      operationId: chat_ai_settings_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Settings updated
+
+  # ============ ROOMS ============
+
+  # ============ ROOMS ============
+  /rooms:
+    get:
+      tags: [Rooms]
+      summary: List rooms
+      operationId: rooms_list
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Free-text search
+        - in: query
+          name: type
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 200 }
+      responses:
+        '200':
+          description: Rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Room' }
+    post:
+      tags: [Rooms]
+      summary: Create room
+      operationId: rooms_create
+      responses:
+        '201':
+          description: Room created
+  /rooms/{id}:
+    get:
+      tags: [Rooms]
+      summary: Get room
+      operationId: rooms_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Room
+    put:
+      tags: [Rooms]
+      summary: Update room
+      operationId: rooms_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Room updated
+    delete:
+      tags: [Rooms]
+      summary: Delete room
+      operationId: rooms_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Room deleted
+  /rooms/bulk-delete:
+    post:
+      tags: [Rooms]
+      summary: Bulk delete rooms
+      operationId: rooms_bulk_delete
+      responses:
+        '200':
+          description: Rooms deleted
+
+  # ============ EQUIPMENT ============
+  /equipment:
+    get:
+      tags: [Equipment]
+      summary: List equipment
+      operationId: equipment_list
+      parameters:
+        - in: query
+          name: room
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        '200':
+          description: Equipment
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Equipment' }
+    post:
+      tags: [Equipment]
+      summary: Create equipment
+      operationId: equipment_create
+      responses:
+        '201':
+          description: Equipment created
+  /equipment/{id}:
+    get:
+      tags: [Equipment]
+      summary: Get equipment
+      operationId: equipment_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Equipment
+    put:
+      tags: [Equipment]
+      summary: Update equipment
+      operationId: equipment_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Equipment updated
+    delete:
+      tags: [Equipment]
+      summary: Delete equipment
+      operationId: equipment_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Equipment deleted
+  /equipment/bulk-delete:
+    post:
+      tags: [Equipment]
+      summary: Bulk delete equipment
+      operationId: equipment_bulk_delete
+      responses:
+        '200':
+          description: Equipment deleted
+
+  # ============ NEWS ============
+  /news:
+    get:
+      tags: [News]
+      summary: List news
+      operationId: news_list
+      responses:
+        '200':
+          description: News items
+    post:
+      tags: [News]
+      summary: Create news
+      operationId: news_create
+      responses:
+        '201':
+          description: News created
+  /news/{id}:
+    get:
+      tags: [News]
+      summary: Get news item
+      operationId: news_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: News item
+    put:
+      tags: [News]
+      summary: Update news
+      operationId: news_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: News updated
+    delete:
+      tags: [News]
+      summary: Delete news
+      operationId: news_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: News deleted
+  /news/upload:
+    post:
+      tags: [News]
+      summary: Upload news attachment
+      operationId: news_upload
+      responses:
+        '200':
+          description: File uploaded
+    delete:
+      tags: [News]
+      summary: Delete news attachment
+      operationId: news_upload_delete
+      responses:
+        '204':
+          description: File deleted
+
+  # ============ EXAMS ============
+  /exams/terms/available:
+    get:
+      tags: [Exams]
+      summary: Available exam terms for students
+      operationId: exams_available
+      responses:
+        '200':
+          description: Exam terms
+  /exams/terms/my:
+    get:
+      tags: [Exams]
+      summary: My registered exams
+      operationId: exams_my
+      responses:
+        '200':
+          description: Registered exams
+  /exams/terms:
+    get:
+      tags: [Exams]
+      summary: All exam terms (teacher)
+      operationId: exams_list
+      responses:
+        '200':
+          description: Exam terms
+    post:
+      tags: [Exams]
+      summary: Create exam term
+      operationId: exams_create
+      responses:
+        '201':
+          description: Exam created
+  /exams/terms/{id}:
+    put:
+      tags: [Exams]
+      summary: Update exam term
+      operationId: exams_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Exam updated
+    delete:
+      tags: [Exams]
+      summary: Delete exam term
+      operationId: exams_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Exam deleted
+  /exams/terms/{id}/registrations:
+    get:
+      tags: [Exams]
+      summary: Get exam registrations
+      operationId: exams_registrations
+      description: Get all students registered for a specific exam term
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of registrations
+  /exams/terms/{id}/register:
+    post:
+      tags: [Exams]
+      summary: Register for exam
+      operationId: exams_register
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Registered
+  /exams/terms/{id}/unregister:
+    post:
+      tags: [Exams]
+      summary: Unregister from exam
+      operationId: exams_unregister
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Unregistered
+
+  # ============ THESIS ============
+  /thesis/topics:
+    get:
+      tags: [Thesis]
+      summary: List thesis topics (public)
+      operationId: thesis_topics_list
+      responses:
+        '200':
+          description: Topics
+    post:
+      tags: [Thesis]
+      summary: Create thesis topic
+      operationId: thesis_topics_create
+      responses:
+        '201':
+          description: Topic created
+  /thesis/topics/my:
+    get:
+      tags: [Thesis]
+      summary: My topics (teacher)
+      operationId: thesis_topics_my
+      responses:
+        '200':
+          description: My topics
+  /thesis/topics/{id}:
+    get:
+      tags: [Thesis]
+      summary: Get thesis topic
+      operationId: thesis_topics_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Topic
+    put:
+      tags: [Thesis]
+      summary: Update thesis topic
+      operationId: thesis_topics_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Topic updated
+    delete:
+      tags: [Thesis]
+      summary: Delete thesis topic
+      operationId: thesis_topics_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Topic deleted
+  /thesis/requests:
+    get:
+      tags: [Thesis]
+      summary: List thesis requests
+      operationId: thesis_requests_list
+      responses:
+        '200':
+          description: Requests
+    post:
+      tags: [Thesis]
+      summary: Create thesis request
+      operationId: thesis_requests_create
+      responses:
+        '201':
+          description: Request created
+  /thesis/my:
+    get:
+      tags: [Thesis]
+      summary: My thesis (student)
+      operationId: thesis_my
+      responses:
+        '200':
+          description: My thesis
+  /thesis/my/submit:
+    post:
+      tags: [Thesis]
+      summary: Submit thesis
+      operationId: thesis_submit
+      responses:
+        '200':
+          description: Thesis submitted
+  /thesis/requests:
+    get:
+      tags: [Thesis]
+      summary: List thesis requests
+      operationId: thesis_requests_list
+      responses:
+        '200':
+          description: Requests
+    post:
+      tags: [Thesis]
+      summary: Create thesis request
+      operationId: thesis_requests_create
+      responses:
+        '201':
+          description: Request created
+  /thesis/requests/my:
+    get:
+      tags: [Thesis]
+      summary: My requests (student)
+      operationId: thesis_requests_my
+      responses:
+        '200':
+          description: My requests
+  /thesis/requests/incoming:
+    get:
+      tags: [Thesis]
+      summary: Incoming requests (teacher)
+      operationId: thesis_requests_incoming
+      responses:
+        '200':
+          description: Incoming requests
+  /thesis/requests/{id}:
+    put:
+      tags: [Thesis]
+      summary: Update thesis request
+      operationId: thesis_requests_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Request updated
+    delete:
+      tags: [Thesis]
+      summary: Delete thesis request
+      operationId: thesis_requests_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Request deleted
+  /thesis/requests/{id}/cancel:
+    post:
+      tags: [Thesis]
+      summary: Cancel thesis request
+      operationId: thesis_requests_cancel
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Request cancelled
+  /thesis/requests/{id}/approve:
+    post:
+      tags: [Thesis]
+      summary: Approve thesis request
+      operationId: thesis_requests_approve
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Request approved
+  /thesis/requests/{id}/return:
+    post:
+      tags: [Thesis]
+      summary: Return thesis request for revision
+      operationId: thesis_requests_return
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Returned
+  /thesis/requests/{id}/reject:
+    post:
+      tags: [Thesis]
+      summary: Reject thesis request
+      operationId: thesis_requests_reject
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Request rejected
+  /thesis/supervisions:
+    get:
+      tags: [Thesis]
+      summary: My supervisions (teacher)
+      operationId: thesis_supervisions
+      responses:
+        '200':
+          description: Supervisions
+  /thesis/supervisions/{id}/status:
+    post:
+      tags: [Thesis]
+      summary: Update supervision status
+      operationId: thesis_supervisions_status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Status updated
+  /thesis/supervisions/{id}/defense:
+    post:
+      tags: [Thesis]
+      summary: Schedule defense
+      operationId: thesis_supervisions_defense
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Defense scheduled
+  /thesis/supervisions/{id}/originality:
+    post:
+      tags: [Thesis]
+      summary: Update originality
+      operationId: thesis_supervisions_originality
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Originality updated
+  /thesis/supervisions/{id}/grades:
+    post:
+      tags: [Thesis]
+      summary: Add grades
+      operationId: thesis_supervisions_grades
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Grades added
+
+  # ============ PAYMENTS ============
+  /payments/student/{id}:
+    get:
+      tags: [Payments]
+      summary: Student payments
+      operationId: payments_student
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Payments
+  /payments/student/{id}/summary:
+    get:
+      tags: [Payments]
+      summary: Payment summary
+      operationId: payments_summary
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Summary
+  /payments/student/{id}/finance:
+    get:
+      tags: [Payments]
+      summary: Finance info
+      operationId: payments_finance
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Finance info
+  /payments/{id}:
+    get:
+      tags: [Payments]
+      summary: Get payment
+      operationId: payments_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Payment
+    delete:
+      tags: [Payments]
+      summary: Delete payment
+      operationId: payments_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Payment deleted
+  /payments:
+    post:
+      tags: [Payments]
+      summary: Create payment
+      operationId: payments_create
+      responses:
+        '201':
+          description: Payment created
+  /payments/{id}/status:
+    put:
+      tags: [Payments]
+      summary: Update payment status
+      operationId: payments_status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Status updated
+
+  # ============ CLASS GROUPS ============
+  /class-groups:
+    get:
+      tags: [ClassGroups]
+      summary: List class groups
+      operationId: classgroups_list
+      responses:
+        '200':
+          description: Class groups
+    post:
+      tags: [ClassGroups]
+      summary: Create class group
+      operationId: classgroups_create
+      responses:
+        '201':
+          description: Class group created
+  /class-groups/{id}:
+    get:
+      tags: [ClassGroups]
+      summary: Get class group
+      operationId: classgroups_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Class group
+    put:
+      tags: [ClassGroups]
+      summary: Update class group
+      operationId: classgroups_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Class group updated
+    delete:
+      tags: [ClassGroups]
+      summary: Delete class group
+      operationId: classgroups_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Class group deleted
+  /class-groups/faculties:
+    get:
+      tags: [ClassGroups]
+      summary: List distinct faculties
+      operationId: classgroups_faculties
+      responses:
+        '200':
+          description: Faculties
+  /class-groups/programs:
+    get:
+      tags: [ClassGroups]
+      summary: List distinct programs
+      operationId: classgroups_programs
+      responses:
+        '200':
+          description: Programs
+
+  # ============ ENROLLMENTS ============
+  /enrollments/confirm:
+    post:
+      tags: [Students]
+      summary: Confirm enrollment
+      operationId: enrollments_confirm
+      responses:
+        '200':
+          description: Enrollment confirmed
+  /enrollments/create-for-student:
+    post:
+      tags: [Students]
+      summary: Create enrollment for student (teacher)
+      operationId: enrollments_create_for_student
+      responses:
+        '201':
+          description: Enrollment created
+
+  # ============ KNOWLEDGE BASE ============
+  /knowledge-base/articles:
+    get:
+      tags: [KnowledgeBase]
+      summary: List articles
+      operationId: kb_articles_list
+      responses:
+        '200':
+          description: Articles
+    post:
+      tags: [KnowledgeBase]
+      summary: Create article
+      operationId: kb_articles_create
+      responses:
+        '201':
+          description: Article created
+  /knowledge-base/articles/{id}:
+    get:
+      tags: [KnowledgeBase]
+      summary: Get article
+      operationId: kb_articles_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Article
+    put:
+      tags: [KnowledgeBase]
+      summary: Update article
+      operationId: kb_articles_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Article updated
+    delete:
+      tags: [KnowledgeBase]
+      summary: Delete article
+      operationId: kb_articles_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Article deleted
+  /knowledge-base/articles/{id}/feedback:
+    post:
+      tags: [KnowledgeBase]
+      summary: Submit article feedback
+      operationId: kb_articles_feedback
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Feedback submitted
+  /knowledge-base/categories:
+    get:
+      tags: [KnowledgeBase]
+      summary: List categories
+      operationId: kb_categories
+      responses:
+        '200':
+          description: Categories
+  /knowledge-base/tags:
+    get:
+      tags: [KnowledgeBase]
+      summary: List tags
+      operationId: kb_tags
+      responses:
+        '200':
+          description: Tags
+  /knowledge-base/stats:
+    get:
+      tags: [KnowledgeBase]
+      summary: Knowledge base statistics
+      operationId: kb_stats
+      responses:
+        '200':
+          description: Statistics
+
+  # ============ ACTIVITIES ============
+  /activities:
+    get:
+      tags: [Activities]
+      summary: List activities
+      operationId: activities_list
+      responses:
+        '200':
+          description: Activities
+    post:
+      tags: [Activities]
+      summary: Create activity
+      operationId: activities_create
+      responses:
+        '201':
+          description: Activity created
+  /activities/{id}:
+    get:
+      tags: [Activities]
+      summary: Get activity
+      operationId: activities_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Activity
+    put:
+      tags: [Activities]
+      summary: Update activity
+      operationId: activities_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Activity updated
+    delete:
+      tags: [Activities]
+      summary: Delete activity
+      operationId: activities_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Activity deleted
+  /activities/user/{userEmail}:
+    get:
+      tags: [Activities]
+      summary: Get user's activities
+      operationId: activities_user
+      parameters:
+        - in: path
+          name: userEmail
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Activities
+  /activities/resolve:
+    post:
+      tags: [Activities]
+      summary: Resolve activities
+      operationId: activities_resolve
+      responses:
+        '200':
+          description: Activities resolved
+  /activities/mark-needs-action:
+    post:
+      tags: [Activities]
+      summary: Mark activities as needs action
+      operationId: activities_mark_needs_action
+      responses:
+        '200':
+          description: Marked
+  /activities/bulk-delete:
+    post:
+      tags: [Activities]
+      summary: Bulk delete activities
+      operationId: activities_bulk_delete
+      responses:
+        '200':
+          description: Activities deleted
+  /activities/stats:
+    get:
+      tags: [Activities]
+      summary: Activity statistics
+      operationId: activities_stats
+      responses:
+        '200':
+          description: Statistics
+
+  # ============ DOCUMENTS ============
+  /documents/render:
+    post:
+      tags: [Activities]
+      summary: Render document
+      operationId: documents_render
+      responses:
+        '200':
+          description: Document rendered
+  /documents/assign:
+    post:
+      tags: [Activities]
+      summary: Assign document to students
+      operationId: documents_assign
+      responses:
+        '200':
+          description: Document assigned
+  /documents/assign-faculty:
+    post:
+      tags: [Activities]
+      summary: Assign document to faculty
+      operationId: documents_assign_faculty
+      responses:
+        '200':
+          description: Document assigned
+  /documents/teacher/profile:
+    post:
+      tags: [Activities]
+      summary: Generate teacher profile report
+      operationId: documents_teacher_profile
+      responses:
+        '200':
+          description: Profile generated
+  /documents/my:
+    get:
+      tags: [Activities]
+      summary: My documents
+      operationId: documents_my
+      responses:
+        '200':
+          description: Documents
+  /documents/{id}:
+    get:
+      tags: [Activities]
+      summary: Get document
+      operationId: documents_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Document
+
+  # ============ CHANGELOG ============
+  /changelog:
+    get:
+      tags: [Activities]
+      summary: List changelog entries
+      operationId: changelog_list
+      responses:
+        '200':
+          description: Changelog entries
+    post:
+      tags: [Activities]
+      summary: Create changelog entry
+      operationId: changelog_create
+      responses:
+        '201':
+          description: Entry created
+  /changelog/{id}:
+    get:
+      tags: [Activities]
+      summary: Get changelog entry
+      operationId: changelog_get
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Entry
+    put:
+      tags: [Activities]
+      summary: Update changelog entry
+      operationId: changelog_update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Entry updated
+    delete:
+      tags: [Activities]
+      summary: Delete changelog entry
+      operationId: changelog_delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Entry deleted
+
+  # ============ PROGRAMS ============
+  /programs:
+    get:
+      tags: [Courses]
+      summary: List all programs
+      operationId: programs_list
+      responses:
+        '200':
+          description: Programs
+  /programs/{name}/usage:
+    get:
+      tags: [Courses]
+      summary: Get program usage stats
+      operationId: programs_usage
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Usage stats
+
+  # ============ STUDENT DATA (ADVANCED) ============
+  /student-data/{studentId}/bank-connections:
+    get:
+      tags: [Students]
+      summary: Get student bank connections
+      operationId: student_data_bank_connections
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Bank connections
+    post:
+      tags: [Students]
+      summary: Add bank connection
+      operationId: student_data_bank_connections_create
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '201':
+          description: Connection added
+  /student-data/{studentId}/bank-connections/{id}:
+    put:
+      tags: [Students]
+      summary: Update bank connection
+      operationId: student_data_bank_connections_update
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Connection updated
+    delete:
+      tags: [Students]
+      summary: Delete bank connection
+      operationId: student_data_bank_connections_delete
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Connection deleted
+  /student-data/{studentId}/variable-symbols:
+    get:
+      tags: [Students]
+      summary: Get variable symbols
+      operationId: student_data_variable_symbols
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Variable symbols
+    post:
+      tags: [Students]
+      summary: Add variable symbol
+      operationId: student_data_variable_symbols_create
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '201':
+          description: Symbol added
+  /student-data/{studentId}/variable-symbols/{id}:
+    put:
+      tags: [Students]
+      summary: Update variable symbol
+      operationId: student_data_variable_symbols_update
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Symbol updated
+    delete:
+      tags: [Students]
+      summary: Delete variable symbol
+      operationId: student_data_variable_symbols_delete
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Symbol deleted
+  /student-data/sessions/{userId}:
+    get:
+      tags: [Students]
+      summary: Get user sessions
+      operationId: student_data_sessions
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Sessions
+  /student-data/sessions:
+    post:
+      tags: [Students]
+      summary: Create session
+      operationId: student_data_sessions_create
+      responses:
+        '201':
+          description: Session created
+  /student-data/sessions/{sessionId}/activity:
+    put:
+      tags: [Students]
+      summary: Update session activity
+      operationId: student_data_sessions_activity
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Activity updated
+  /student-data/sessions/{sessionId}:
+    delete:
+      tags: [Students]
+      summary: Delete session
+      operationId: student_data_sessions_delete
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: Session deleted
+  /student-data/ranking:
+    get:
+      tags: [Students]
+      summary: Get student ranking
+      operationId: student_data_ranking
+      responses:
+        '200':
+          description: Ranking
+  /student-data/{studentId}/ranking:
+    get:
+      tags: [Students]
+      summary: Get specific student ranking
+      operationId: student_data_student_ranking
+      parameters:
+        - in: path
+          name: studentId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Student ranking
+
+  # ============ STATUS ============
+  /status/ping:
+    get:
+      tags: [Database]
+      summary: Health check
+      operationId: status_ping
+      security: []
+      responses:
+        '200':
+          description: Server status
+
+  # ============ DEV TOOLS ============
+  /activation-token:
+    get:
+      tags: [Database]
+      summary: Get activation token (dev helper)
+      operationId: activation_token
+      parameters:
+        - in: query
+          name: email
+          schema: { type: string, format: email }
+        - in: query
+          name: scope
+          schema: { type: string, enum: [faculty, student] }
+      responses:
+        '200':
+          description: Activation token
+  /auth/forgot-password/tokens:
+    get:
+      tags: [Authentication]
+      summary: Get password reset tokens (dev helper)
+      operationId: forgot_password_tokens
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema: { type: string, format: email }
+      responses:
+        '200':
+          description: Reset tokens
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    DbSummary:
+      type: object
+      properties:
+        canConnect: { type: boolean }
+        courses: { type: integer }
+        faculty: { type: integer }
+        students: { type: integer }
+        rooms: { type: integer }
+        equipment: { type: integer }
+        timetable: { type: integer }
+    Role:
+      type: string
+      enum: [teacher, student]
+
+    User:
+      type: object
+      required: [id, email, role, fullName]
+      properties:
+        id: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: '#/components/schemas/Role' }
+        fullName: { type: string }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string }
+    LoginResponse:
+      type: object
+      required: [accessToken, refreshToken, user]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+
+    UserProfile:
+      type: object
+      description: Generic profile shape for current user
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        faculty: { type: string, nullable: true }
+        program: { type: string, nullable: true }
+        degree: { type: string, nullable: true }
+        studyYear: { type: integer, nullable: true }
+        phone: { type: string, nullable: true }
+        office: { type: string, nullable: true }
+        officeHours: { $ref: '#/components/schemas/OfficeHours' }
+        workingHours: { $ref: '#/components/schemas/WorkingHours' }
+        departments:
+          type: array
+          items: { type: string }
+        subjects:
+          type: array
+          items: { type: string }
+        rating: { type: number, format: float, nullable: true }
+        certifications:
+          type: array
+          items: { $ref: '#/components/schemas/Certification' }
+    UserProfileUpdate:
+      type: object
+      properties:
+        fullName: { type: string }
+        phone: { type: string }
+        office: { type: string }
+        officeHours: { $ref: '#/components/schemas/OfficeHours' }
+        workingHours: { $ref: '#/components/schemas/WorkingHours' }
+
+    Student:
+      type: object
+      required: [id, fullName, email]
+      properties:
+        id: { type: string }
+        fullName: { type: string }
+        degree: { type: string, nullable: true }
+        givenName: { type: string, nullable: true }
+        familyName: { type: string, nullable: true }
+        email: { type: string, format: email }
+        faculty: { type: string }
+        program: { type: string }
+        studyYear: { type: integer }
+        enrollmentSemester: { type: string, nullable: true }
+        isArchived: { type: boolean, nullable: true }
+
+    StudentCreate:
+      type: object
+      required: [fullName, email, faculty, program, studyYear]
+      properties:
+        fullName: { type: string }
+        givenName: { type: string, nullable: true }
+        familyName: { type: string, nullable: true }
+        email: { type: string, format: email }
+        faculty: { type: string }
+        program: { type: string }
+        degree: { type: string, nullable: true }
+        studyYear: { type: integer }
+
+    Faculty:
+      type: object
+      required: [id, fullName, email]
+      properties:
+        id: { type: string }
+        fullName: { type: string }
+        titlesPrefix:
+          type: array
+          items: { type: string }
+        titlesSuffix:
+          type: array
+          items: { type: string }
+        givenName: { type: string, nullable: true }
+        familyName: { type: string, nullable: true }
+        faculty: { type: string }
+        departments:
+          type: array
+          items: { type: string }
+        primaryDepartment: { type: string, nullable: true }
+        email: { type: string, format: email }
+        phone: { type: string, nullable: true }
+        office: { type: string, nullable: true }
+        status: { type: string, enum: [active, on-leave], nullable: true }
+        employmentType: { type: string, enum: [full-time, part-time], nullable: true }
+        classesCount: { type: integer, nullable: true }
+        yearsExperience: { type: integer, nullable: true }
+        hireDate: { type: string, format: date-time, nullable: true }
+        lastActivity: { type: string, format: date-time, nullable: true }
+        rating: { type: number, format: float, nullable: true }
+        subjects:
+          type: array
+          items: { type: string }
+        certifications:
+          type: array
+          items: { $ref: '#/components/schemas/Certification' }
+        officeHours: { $ref: '#/components/schemas/OfficeHours' }
+        workingHours: { $ref: '#/components/schemas/WorkingHours' }
+
+    Certification:
+      type: object
+      properties:
+        title: { type: string }
+        issuer: { type: string }
+        issuedOn: { type: string, format: date-time, nullable: true }
+        expiresOn: { type: string, format: date-time, nullable: true }
+        fileUrl: { type: string, nullable: true }
+        fileName: { type: string, nullable: true }
+        mimeType: { type: string, nullable: true }
+        tags:
+          type: array
+          items: { type: string }
+        code: { type: string, nullable: true }
+        primary: { type: boolean, nullable: true }
+        notes: { type: string, nullable: true }
+
+    OfficeHours:
+      type: object
+      description: Weekday map of availability windows
+      additionalProperties:
+        $ref: '#/components/schemas/OfficeDayWindow'
+    OfficeDayWindow:
+      type: object
+      properties:
+        enabled: { type: boolean }
+        start: { type: string, example: '10:00' }
+        end: { type: string, example: '12:00' }
+
+    WorkingHours:
+      type: object
+      description: Weekday map of working windows
+      additionalProperties:
+        $ref: '#/components/schemas/OfficeDayWindow'
+
+    Course:
+      type: object
+      required: [code, nameEn, credits]
+      properties:
+        id: { type: string }
+        code: { type: string }
+        nameSk: { type: string, nullable: true }
+        nameEn: { type: string }
+        completionSk: { type: string, nullable: true }
+        credits: { type: integer }
+        typeSk: { type: string, nullable: true }
+        profile: { type: string, nullable: true }
+        hoursSk: { type: string, nullable: true }
+        periodSk: { type: string, nullable: true }
+
+    TimetableEntry:
+      type: object
+      properties:
+        day: { type: string, example: 'Monday' }
+        slot: { type: string, example: '09:10-09:55' }
+        courseCode: { type: string }
+        room: { type: string }
+        teacherEmail: { type: string, format: email }
+        note: { type: string, nullable: true }
+        type: { type: string, nullable: true }
+
+    ScheduleEvent:
+      type: object
+      properties:
+        id: { type: string }
+        subject: { type: string }
+        courseCode: { type: string }
+        teacher: { type: string }
+        teacherEmail: { type: string, format: email, nullable: true }
+        room: { type: string }
+        day: { type: string }
+        time: { type: string }
+        endTime: { type: string }
+        studentCount: { type: integer, nullable: true }
+        hasConflict: { type: boolean, nullable: true }
+        notes: { type: string, nullable: true }
+        classGroupKeys:
+          type: array
+          items: { type: string }
+
+    Class:
+      type: object
+      properties:
+        id: { type: string }
+        code: { type: string }
+        name: { type: string }
+        subject: { type: string }
+        grade: { type: string, nullable: true }
+        students: { type: integer }
+        ownerId: { type: string }
+        sessionsCount: { type: integer }
+        sessions:
+          type: array
+          items:
+            type: object
+            properties:
+              day: { type: string }
+              time: { type: string }
+              room: { type: string }
+
+    Assignment:
+      type: object
+      properties:
+        id: { type: string }
+        classId: { type: string }
+        name: { type: string }
+        category: { type: string, enum: [quiz, homework, test, project] }
+        totalPoints: { type: integer }
+        dueDate: { type: string, format: date }
+        description: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    GradeRecord:
+      type: object
+      properties:
+        studentId: { type: string }
+        assignmentId: { type: string }
+        points: { type: integer }
+        percentage: { type: integer }
+        letterGrade: { type: string, enum: [A, B, C, D, F] }
+        lastUpdated: { type: string, format: date-time }
+
+    TeacherGradebook:
+      type: object
+      properties:
+        teacher: { $ref: '#/components/schemas/Faculty' }
+        classes:
+          type: array
+          items: { $ref: '#/components/schemas/Class' }
+        classStudents:
+          type: array
+          items:
+            type: object
+            properties:
+              classId: { type: string }
+              students:
+                type: array
+                items: { $ref: '#/components/schemas/Student' }
+        assignments:
+          type: array
+          items: { $ref: '#/components/schemas/Assignment' }
+        grades:
+          type: array
+          items: { $ref: '#/components/schemas/GradeRecord' }
+
+    StudentGradebook:
+      type: object
+      properties:
+        student: { $ref: '#/components/schemas/Student' }
+        classes:
+          type: array
+          items: { $ref: '#/components/schemas/Class' }
+        assignments:
+          type: array
+          items: { $ref: '#/components/schemas/Assignment' }
+        grades:
+          type: array
+          items: { $ref: '#/components/schemas/GradeRecord' }
+
+    Room:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+        capacity: { type: integer, nullable: true }
+        link: { type: string, nullable: true }
+        email: { type: string, format: email, nullable: true }
+
+    Equipment:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string }
+        status: { type: string, enum: [available, in-use, maintenance] }
+        location: { type: string }
+        assignedTo: { type: string, nullable: true }
+        nextBooking: { type: string, nullable: true }

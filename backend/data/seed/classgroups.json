@@ -1,0 +1,17 @@
+[
+  {
+    "id": "01-sk-FEI-CYB",
+    "name": "01. sk (Cybersecurity)",
+    "faculty": "FEI",
+    "program": "Cybersecurity",
+    "programId": "prog-cyb-ing",
+    "studyYear": 2,
+    "capacity": 25,
+    "studentCount": 1,
+    "teacherEmail": "marek.horvath@university.edu",
+    "description": "Slovak group for Cybersecurity Master program",
+    "createdAt": "2024-09-01T08:00:00Z",
+    "updatedAt": "2025-09-01T08:00:00Z",
+    "isActive": true
+  }
+]

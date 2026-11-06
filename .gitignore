@@ -1,0 +1,374 @@
+# ============================================
+# MAIS Management System - Root .gitignore
+# ============================================
+
+# ----------------------
+# Dependencies
+# ----------------------
+node_modules/
+.pnp/
+.pnp.js
+.yarn/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ----------------------
+# Environment Variables (SENSITIVE!)
+# ----------------------
+# These files contain secrets like passwords, API keys, tokens
+.env
+.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Allow example/template files (no secrets)
+!.env.example
+!.env.template
+!.env.sample
+
+# ----------------------
+# ASP.NET Core / .NET
+# ----------------------
+# Build outputs
+bin/
+obj/
+out/
+publish/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+.vs/
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Data Protection Keys (sensitive!)
+data-protection-keys/
+
+# Local settings overrides (may contain secrets)
+appsettings.local.json
+appsettings.*.local.json
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+usersecrets/
+
+# EF Core migrations (keep tracked, but ignore local DBs)
+*.mdf
+*.ldf
+*.ndf
+
+# .NET Core tool manifest
+.config/dotnet-tools.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# JetBrains Rider/ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# GVT (Git Version Tool) - auto-generated version info
+*.gvt
+.gvt/
+GitVersion.yml.local
+
+# NSwag generated files
+*.nswag.json.bak
+
+# ----------------------
+# IDE & Editors
+# ----------------------
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs (IntelliJ, WebStorm, Rider)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim/Neovim
+*.swp
+*.swo
+*.swn
+*~
+.vim/
+.nvim/
+Session.vim
+.netrwhist
+tags
+
+# Emacs
+*~
+\#*\#
+.#*
+*.elc
+.dir-locals.el
+
+# Atom
+.atom/
+
+# ----------------------
+# Operating System
+# ----------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ----------------------
+# Logs
+# ----------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+.npm/
+.eslintcache
+.stylelintcache
+
+# ----------------------
+# Runtime Data
+# ----------------------
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ----------------------
+# Temporary Files
+# ----------------------
+.tmp/
+.tmp-esm/
+.cache/
+.temp/
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.retry
+
+# Auto-refresh/watch files
+*.refresh
+.refresh/
+
+# ----------------------
+# Build Outputs (General)
+# ----------------------
+dist/
+build/
+out/
+output/
+.output/
+
+# Frontend build (keep in wwwroot for deployment)
+# frontend/build/ - this is copied to backend/aspnet/Mais.Web/wwwroot/
+
+# ----------------------
+# Docker
+# ----------------------
+.docker/
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.*.local.yml
+
+# Docker volumes (local data)
+.docker-data/
+docker-data/
+
+# ----------------------
+# Database
+# ----------------------
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+*.ndf
+data/postgres/
+data/redis/
+data/mongodb/
+
+# PostgreSQL data
+pgdata/
+postgres-data/
+
+# ----------------------
+# Secrets & Certificates (SENSITIVE!)
+# ----------------------
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+*.p12
+secrets/
+.secrets/
+credentials/
+*.credentials
+
+# JWT/Auth secrets
+jwt-secret.txt
+signing-key.txt
+
+# SMTP/Email credentials
+smtp-credentials.*
+
+# ----------------------
+# Coverage & Testing
+# ----------------------
+coverage/
+.nyc_output/
+*.lcov
+*.test.js.snap
+__snapshots__/
+junit.xml
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Vitest
+.vitest/
+
+# ----------------------
+# Documentation (Generated)
+# ----------------------
+docs/_build/
+site/
+.docusaurus/
+api-docs/
+
+# Swagger/OpenAPI generated
+swagger-ui/
+redoc-static.html
+
+# ----------------------
+# Frontend Specific
+# ----------------------
+# Vite
+.vite/
+
+# ESLint/Prettier cache
+.eslintcache
+.prettiercache
+
+# TypeScript
+*.tsbuildinfo
+
+# ----------------------
+# Backend Specific
+# ----------------------
+# Health check files
+healthcheck.txt
+
+# Migration snapshots (local)
+Migrations/*.Designer.cs.bak
+
+# ----------------------
+# Misc
+# ----------------------
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vercel/
+.netlify/
+.turbo/
+.husky/_/
+
+# Storybook
+storybook-static/
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Large files
+*.mp4
+*.mov
+*.avi
+*.wmv
+*.flv
+*.mkv
+*.iso
+
+# ----------------------
+# Local Development
+# ----------------------
+# Local notes/todos
+TODO.local.md
+NOTES.local.md
+*.local.md
+
+# Local scripts
+*.local.sh
+*.local.ps1
+*.local.bat
+
+# Scratch files
+scratch/
+.scratch/

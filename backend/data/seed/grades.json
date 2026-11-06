@@ -1,0 +1,14 @@
+[
+  {
+    "id": "grade-kb079if-ing-26001198-2025ws",
+    "studentId": "kb079if-ing",
+    "courseCode": "26001198",
+    "teacherEmail": "marek.horvath@university.edu",
+    "assessmentType": "ZS",
+    "continuousPercent": 35,
+    "finalPercent": 48,
+    "totalPercent": 83,
+    "letterGrade": "B",
+    "awardedAt": "2025-11-28T14:00:00Z"
+  }
+]

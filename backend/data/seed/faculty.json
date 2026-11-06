@@ -1,0 +1,185 @@
+[
+  {
+    "id": "mh795il",
+    "fullName": "Marek Horváth",
+    "titlesPrefix": [
+      "Ing."
+    ],
+    "titlesSuffix": [
+      "PhD."
+    ],
+    "givenName": "Marek",
+    "familyName": "Horváth",
+    "faculty": "FEI",
+    "program": "Cybersecurity",
+    "department": "Katedra počítačov a informatiky",
+    "departmentCode": "FEI-KPI",
+    "departmentId": "dept-fei-kpi",
+    "departments": [
+      "Katedra počítačov a informatiky (FEI)"
+    ],
+    "email": "marek.horvath@university.edu",
+    "phone": "+421 55 713 537-718",
+    "office": "N9-015(ZP4)",
+    "status": "active",
+    "employmentType": "full-time",
+    "classesCount": 1,
+    "yearsExperience": 24,
+    "hireDate": "1999-10-17T22:00:00.000Z",
+    "lastActivity": "2025-11-28T14:00:00.000Z",
+    "about": "Dr. Horváth is an experienced cybersecurity researcher and educator with over 24 years of teaching experience. His research focuses on forensic analysis, network security, and ethical hacking. He has published numerous papers in international journals and actively participates in cybersecurity conferences worldwide.",
+    "bio": "Marek Horváth specializes in forensic analysis and cybersecurity education. He has been instrumental in developing the Cybersecurity program at TUKE and maintains strong industry connections through research collaborations.",
+    "expertise": [
+      "Forensic Analysis",
+      "Network Security",
+      "Ethical Hacking",
+      "Cybersecurity Education",
+      "Digital Evidence Analysis"
+    ],
+    "publications": [
+      {
+        "title": "Advanced Forensic Techniques in Modern Computing",
+        "year": 2023,
+        "journal": "International Journal of Cybersecurity",
+        "url": ""
+      }
+    ],
+    "researchInterests": [
+      "Digital Forensics",
+      "Network Security",
+      "Malware Analysis",
+      "Incident Response"
+    ],
+    "academicDegree": "PhD",
+    "languages": [
+      {
+        "language": "Slovak",
+        "proficiency": "Native"
+      },
+      {
+        "language": "English",
+        "proficiency": "Fluent"
+      },
+      {
+        "language": "Czech",
+        "proficiency": "Advanced"
+      }
+    ],
+    "socialLinks": {
+      "linkedin": "",
+      "researchgate": "",
+      "orcid": "",
+      "googleScholar": "",
+      "website": ""
+    },
+    "subjects": [
+      "26001198"
+    ],
+    "certifications": [
+      {
+        "title": "University Teaching Excellence",
+        "issuer": "TUKE",
+        "issuedOn": "2000-02-14T23:00:00.000Z",
+        "expiresOn": "2005-02-14T23:00:00.000Z",
+        "fileUrl": "",
+        "fileName": "",
+        "mimeType": "application/pdf",
+        "tags": [
+          "teaching"
+        ],
+        "code": "FAC-Y6-UTE",
+        "primary": true,
+        "notes": ""
+      },
+      {
+        "title": "AWS Academy Educator",
+        "issuer": "Amazon Web Services",
+        "issuedOn": "2001-04-02T22:00:00.000Z",
+        "expiresOn": "2004-04-02T22:00:00.000Z",
+        "fileUrl": "",
+        "fileName": "",
+        "mimeType": "application/pdf",
+        "tags": [
+          "cloud"
+        ],
+        "code": "FAC-Y6-AWS",
+        "primary": false,
+        "notes": ""
+      }
+    ],
+    "officeHours": {
+      "Mon": {
+        "enabled": false,
+        "start": "",
+        "end": ""
+      },
+      "Tue": {
+        "enabled": true,
+        "start": "13:00",
+        "end": "15:00"
+      },
+      "Wed": {
+        "enabled": true,
+        "start": "15:00",
+        "end": "17:00"
+      },
+      "Thu": {
+        "enabled": false,
+        "start": "",
+        "end": ""
+      },
+      "Fri": {
+        "enabled": false,
+        "start": "",
+        "end": ""
+      },
+      "Sat": {
+        "enabled": false,
+        "start": "",
+        "end": ""
+      },
+      "Sun": {
+        "enabled": false,
+        "start": "",
+        "end": ""
+      }
+    },
+    "workingHours": {
+      "Mon": {
+        "enabled": true,
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "Tue": {
+        "enabled": true,
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "Wed": {
+        "enabled": true,
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "Thu": {
+        "enabled": true,
+        "start": "08:00",
+        "end": "16:00"
+      },
+      "Fri": {
+        "enabled": true,
+        "start": "08:00",
+        "end": "14:30"
+      },
+      "Sat": {
+        "enabled": false,
+        "start": "",
+        "end": ""
+      },
+      "Sun": {
+        "enabled": false,
+        "start": "",
+        "end": ""
+      }
+    }
+  }
+]

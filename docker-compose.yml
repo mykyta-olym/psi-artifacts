@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:16
+    container_name: mais_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-mais}
+    ports:
+      - "5432:5432"
+    volumes:
+      - mais_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+  api:
+    build:
+      context: .
+      dockerfile: backend/aspnet/Mais.Web/Dockerfile
+    container_name: mais_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      # Database
+      MAIS__DB__CONNECTION: Host=db;Port=5432;Database=${POSTGRES_DB:-mais};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      # JWT Authentication
+      Jwt__Key: ${JWT_KEY:-dev-super-secret-key-change-me-please-32bytes}
+      Jwt__Issuer: ${JWT_ISSUER:-mais.local}
+      Jwt__Audience: ${JWT_AUDIENCE:-mais.local}
+      # SMTP Email
+      Smtp__Host: ${SMTP_HOST:-smtp.gmail.com}
+      Smtp__Port: ${SMTP_PORT:-587}
+      Smtp__UseSsl: ${SMTP_USE_SSL:-true}
+      Smtp__Username: ${SMTP_USERNAME:-}
+      Smtp__Password: ${SMTP_PASSWORD:-}
+      Smtp__FromEmail: ${SMTP_FROM_EMAIL:-}
+      Smtp__FromName: ${SMTP_FROM_NAME:-MAIS System}
+      # Application
+      BaseUrl: ${BASE_URL:-http://localhost:4028}
+      # Gemini AI
+      Gemini__ApiKey: ${GEMINI_API_KEY:-}
+      Gemini__BaseUrl: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta}
+      Gemini__DefaultModel: ${GEMINI_DEFAULT_MODEL:-gemini-2.0-flash}
+      # Seed Data
+      Seed__DefaultStudentPassword: ${SEED_DEFAULT_STUDENT_PASSWORD:-}
+      Seed__DefaultTeacherPassword: ${SEED_DEFAULT_TEACHER_PASSWORD:-}
+      Seed__GenerateRandomPasswords: ${SEED_GENERATE_RANDOM_PASSWORDS:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    volumes:
+      - mais_dataprotection:/app/data-protection-keys
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/healthz || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+volumes:
+  mais_pgdata:
+  mais_dataprotection:

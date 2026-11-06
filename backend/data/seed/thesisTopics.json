@@ -1,0 +1,53 @@
+[
+  {
+    "id": "topic-cyb-ml-security-2025",
+    "type": "Master thesis",
+    "title": "Machine Learning Techniques for Network Intrusion Detection",
+    "program": "CYB-ING",
+    "programLabel": "Cybersecurity (Ing.)",
+    "faculty": "FEI",
+    "department": "FEI-KPI",
+    "keywordsJson": "[\"machine learning\", \"intrusion detection\", \"network security\", \"anomaly detection\"]",
+    "description": "This thesis focuses on developing and evaluating machine learning models for detecting network intrusions. The student will analyze various ML algorithms including Random Forest, SVM, and neural networks for classifying network traffic as benign or malicious.",
+    "supervisorEmail": "marek.horvath@university.edu",
+    "supervisorName": "Ing. Marek Horváth, PhD.",
+    "capacity": 1,
+    "state": "open",
+    "createdAt": "2025-09-01T10:00:00Z",
+    "updatedAt": "2025-09-01T10:00:00Z"
+  },
+  {
+    "id": "topic-cyb-forensic-blockchain-2025",
+    "type": "Master thesis",
+    "title": "Blockchain Forensics: Tracing Cryptocurrency Transactions",
+    "program": "CYB-ING",
+    "programLabel": "Cybersecurity (Ing.)",
+    "faculty": "FEI",
+    "department": "FEI-KPI",
+    "keywordsJson": "[\"blockchain\", \"forensics\", \"cryptocurrency\", \"transaction analysis\"]",
+    "description": "Investigation of blockchain transaction analysis techniques for forensic purposes. The student will develop tools and methodologies for tracing cryptocurrency flows and identifying suspicious activities.",
+    "supervisorEmail": "marek.horvath@university.edu",
+    "supervisorName": "Ing. Marek Horváth, PhD.",
+    "capacity": 1,
+    "state": "open",
+    "createdAt": "2025-09-01T10:00:00Z",
+    "updatedAt": "2025-09-01T10:00:00Z"
+  },
+  {
+    "id": "topic-cyb-memory-forensics-2025",
+    "type": "Master thesis",
+    "title": "Memory Forensics for Malware Analysis",
+    "program": "CYB-ING",
+    "programLabel": "Cybersecurity (Ing.)",
+    "faculty": "FEI",
+    "department": "FEI-KPI",
+    "keywordsJson": "[\"memory forensics\", \"malware\", \"volatility\", \"incident response\"]",
+    "description": "Research into memory forensics techniques for detecting and analyzing malware. The thesis will cover memory acquisition, artifact extraction, and malware identification using tools like Volatility.",
+    "supervisorEmail": "marek.horvath@university.edu",
+    "supervisorName": "Ing. Marek Horváth, PhD.",
+    "capacity": 1,
+    "state": "closed",
+    "createdAt": "2025-08-15T10:00:00Z",
+    "updatedAt": "2025-10-01T10:00:00Z"
+  }
+]

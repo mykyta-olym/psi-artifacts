@@ -1,0 +1,18 @@
+[
+  {
+    "id": "26001198",
+    "code": "26001198",
+    "nameSk": "Forénzna analýza (FA)",
+    "nameEn": "Forensic Analysis",
+    "completionSk": "Zápočet a skúška (ZS)",
+    "credits": 6,
+    "typeSk": "PV",
+    "profile": "PP",
+    "hoursSk": "P-2 CL-2 za Týždeň",
+    "periodSk": "2. rok ZS",
+    "faculty": "FEI",
+    "program": "Cybersecurity",
+    "department": "FEI-KPI",
+    "requiredYear": 2
+  }
+]

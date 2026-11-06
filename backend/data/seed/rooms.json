@@ -1,0 +1,28 @@
+[
+  {
+    "id": "N9-201(ZP1)",
+    "name": "N9-201(ZP1)",
+    "type": "Lecture Hall",
+    "capacity": 120,
+    "building": "N9",
+    "floor": "2nd floor",
+    "location": "Main building, east wing",
+    "active": true,
+    "link": null,
+    "email": null,
+    "faculty": "FEI"
+  },
+  {
+    "id": "N9-015(ZP4)",
+    "name": "N9-015(ZP4)",
+    "type": "Office",
+    "capacity": 4,
+    "building": "N9",
+    "floor": "Ground floor",
+    "location": "Main building, Faculty office wing",
+    "active": true,
+    "link": null,
+    "email": null,
+    "faculty": "FEI"
+  }
+]

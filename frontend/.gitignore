@@ -1,0 +1,266 @@
+# ============================================
+# MAIS Management System - Frontend .gitignore
+# React + Vite + Tailwind CSS
+# ============================================
+
+# ----------------------
+# Dependencies
+# ----------------------
+node_modules/
+.pnp/
+.pnp.js
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# ----------------------
+# Build Outputs
+# ----------------------
+dist/
+build/
+.output/
+.next/
+out/
+
+# Static build output (keep tracked if deployed)
+# build/
+
+# ----------------------
+# Vite
+# ----------------------
+*.local
+.vite/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# ----------------------
+# Environment Variables
+# ----------------------
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+!.env.example
+!.env.template
+
+# ----------------------
+# Testing
+# ----------------------
+coverage/
+.nyc_output/
+*.lcov
+__tests__/__snapshots__/
+*.test.js.snap
+*.test.jsx.snap
+*.test.ts.snap
+*.test.tsx.snap
+junit.xml
+test-results/
+test-report/
+
+# Vitest
+vitest.config.*.timestamp*
+
+# Playwright
+playwright-report/
+playwright/.cache/
+test-results/
+blob-report/
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# Jest
+jest_html_reporters.html
+jest-stare/
+
+# ----------------------
+# Linting & Formatting
+# ----------------------
+.eslintcache
+.stylelintcache
+.prettiercache
+*.tsbuildinfo
+
+# ----------------------
+# TypeScript
+# ----------------------
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+.tscache/
+
+# ----------------------
+# Logs
+# ----------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+.npm/
+
+# ----------------------
+# IDE & Editors
+# ----------------------
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.vim/
+
+# ----------------------
+# Operating System
+# ----------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# ----------------------
+# Temporary Files
+# ----------------------
+.tmp/
+.temp/
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+.cache/
+.parcel-cache/
+
+# ----------------------
+# Package Managers
+# ----------------------
+.npm/
+.pnpm-store/
+.yarnrc
+.npmrc
+!.npmrc.example
+
+# ----------------------
+# Storybook
+# ----------------------
+storybook-static/
+.storybook/storybook-data/
+
+# ----------------------
+# Bundle Analysis
+# ----------------------
+stats.html
+stats.json
+bundle-stats.json
+.analyzer/
+webpack-stats.json
+report.html
+
+# ----------------------
+# PWA / Service Workers
+# ----------------------
+sw.js
+workbox-*.js
+precache-manifest.*.js
+sw-build.js
+service-worker.js
+
+# ----------------------
+# Misc
+# ----------------------
+# Generated source maps
+*.map
+
+# Minified files (if generated locally)
+*.min.js
+*.min.css
+
+# Lock files (optional - some teams track these)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Dependency directories
+jspm_packages/
+bower_components/
+
+# Compiled output
+*.js.map
+*.jsx.map
+*.ts.map
+*.tsx.map
+*.css.map
+
+# Debug files
+.turbo/
+turbo.log
+
+# Husky
+.husky/_/
+
+# Public assets that shouldn't be tracked
+# public/uploads/
+# public/temp/
+
+# ----------------------
+# React Specific
+# ----------------------
+# React DevTools profiler data
+*.profile
+
+# Hot reloader files
+.hot-update.js
+.hot-update.json
+
+# ----------------------
+# Tailwind CSS
+# ----------------------
+# Tailwind JIT cache (if exists)
+.tailwindcache/
+
+# ----------------------
+# PostCSS
+# ----------------------
+.postcss/
+
+# ----------------------
+# SASS/SCSS (if used)
+# ----------------------
+.sass-cache/
+*.css.map
+
+# ----------------------
+# Images & Media (Generated)
+# ----------------------
+# Optimized images cache
+.image-cache/
+public/optimized/
+
+# ----------------------
+# Internationalization
+# ----------------------
+# Generated locale files
+.i18n-cache/

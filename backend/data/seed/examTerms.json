@@ -1,0 +1,47 @@
+[
+  {
+    "id": "exam-26001198-2025ws-term1",
+    "courseCode": "26001198",
+    "courseName": "Forensic Analysis",
+    "credits": 6,
+    "startAt": "2026-01-15T09:00:00Z",
+    "endAt": "2026-01-15T12:00:00Z",
+    "building": "N9",
+    "room": "N9-201(ZP1)",
+    "examiner": "Ing. Marek Horváth, PhD.",
+    "capacity": 30,
+    "createdBy": "marek.horvath@university.edu",
+    "createdAt": "2025-11-01T10:00:00Z",
+    "updatedAt": "2025-11-01T10:00:00Z"
+  },
+  {
+    "id": "exam-26001198-2025ws-term2",
+    "courseCode": "26001198",
+    "courseName": "Forensic Analysis",
+    "credits": 6,
+    "startAt": "2026-01-22T09:00:00Z",
+    "endAt": "2026-01-22T12:00:00Z",
+    "building": "N9",
+    "room": "N9-201(ZP1)",
+    "examiner": "Ing. Marek Horváth, PhD.",
+    "capacity": 30,
+    "createdBy": "marek.horvath@university.edu",
+    "createdAt": "2025-11-01T10:00:00Z",
+    "updatedAt": "2025-11-01T10:00:00Z"
+  },
+  {
+    "id": "exam-26001198-2025ws-term3",
+    "courseCode": "26001198",
+    "courseName": "Forensic Analysis",
+    "credits": 6,
+    "startAt": "2026-02-05T09:00:00Z",
+    "endAt": "2026-02-05T12:00:00Z",
+    "building": "N9",
+    "room": "N9-201(ZP1)",
+    "examiner": "Ing. Marek Horváth, PhD.",
+    "capacity": 30,
+    "createdBy": "marek.horvath@university.edu",
+    "createdAt": "2025-11-01T10:00:00Z",
+    "updatedAt": "2025-11-01T10:00:00Z"
+  }
+]

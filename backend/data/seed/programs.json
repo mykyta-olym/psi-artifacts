@@ -1,0 +1,14 @@
+[
+  {
+    "id": "prog-cyb-ing",
+    "name": "Cybersecurity",
+    "code": "CYB-ING",
+    "faculty": "FEI",
+    "departmentId": "dept-fei-kpi",
+    "level": "Master",
+    "durationYears": 2,
+    "awardedDegree": "Ing.",
+    "description": "Master program in Cybersecurity (2 years, awards Ing.)",
+    "active": true
+  }
+]

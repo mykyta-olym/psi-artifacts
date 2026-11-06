@@ -1,0 +1,84 @@
+# Dependencies
+**/node_modules
+**/.pnp
+**/.pnp.js
+
+# Testing
+**/coverage
+**/*.test.js.snap
+
+# Build output
+**/build
+**/dist
+**/out
+**/.next
+**/.nuxt
+**/.vercel
+
+# Cache
+**/.cache
+**/.parcel-cache
+**/.tmp
+.turbo
+
+# Environment variables
+**/.env
+**/.env*.local
+
+# IDE
+**/.vscode
+**/.idea
+**/*.sublime-workspace
+**/*.swp
+**/*.swo
+
+# Logs
+**/logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# OS
+.DS_Store
+Thumbs.db
+**/*.tmp
+**/*.temp
+
+# Backend build artifacts
+**/bin
+**/obj
+**/*.dll
+**/*.exe
+**/*.pdb
+**/*.user
+**/*.suo
+
+# Database
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/data/postgres
+
+# Docker
+**/.dockerignore
+**/Dockerfile
+**/docker-compose*.yml
+
+# Documentation
+**/README.md
+**/DOCKER.md
+**/*.md
+
+# Misc
+**/.editorconfig
+**/.prettierrc
+**/.eslintrc*
+**/tsconfig*.json
+**/jsconfig.json
+**/*.iml

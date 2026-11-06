@@ -1,0 +1,21 @@
+[
+  {
+    "id": "survey-fa-2024-ws",
+    "title": "Forensic Analysis Course Feedback - Winter 2025/2026",
+    "category": "Course Evaluation",
+    "isAnonymous": true,
+    "openAt": "2025-11-01T00:00:00Z",
+    "closeAt": "2025-12-31T23:59:59Z",
+    "questionsJson": "[{\"id\":\"q1\",\"type\":\"rating\",\"text\":\"How would you rate the overall quality of this course?\",\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"text\":\"How clear were the course materials and lectures?\",\"required\":true},{\"id\":\"q3\",\"type\":\"rating\",\"text\":\"How well did the practical exercises prepare you for real-world scenarios?\",\"required\":true},{\"id\":\"q4\",\"type\":\"text\",\"text\":\"What did you like most about this course?\",\"required\":false},{\"id\":\"q5\",\"type\":\"text\",\"text\":\"What could be improved in future semesters?\",\"required\":false}]",
+    "published": true,
+    "ownerId": "mh795il",
+    "ownerEmail": "marek.horvath@university.edu",
+    "courseCode": "26001198",
+    "targetAudience": "students",
+    "targetFaculty": "FEI",
+    "targetProgram": "Cybersecurity",
+    "targetGroupId": "01-sk-FEI-CYB",
+    "createdAt": "2025-10-15T10:00:00Z",
+    "updatedAt": "2025-10-15T10:00:00Z"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "faculty-fei",
+    "code": "FEI",
+    "nameEn": "Faculty of Electrical Engineering and Informatics",
+    "nameSk": "Fakulta elektrotechniky a informatiky",
+    "description": "Faculty focused on electrical engineering, computer science, and informatics",
+    "active": true
+  }
+]

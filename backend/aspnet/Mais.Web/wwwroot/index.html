@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Mais 2.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="description" content="Mais 2.0 — modern academic suite" />
+  <link rel="icon" type="image/svg+xml" href="https://api.iconify.design/mdi/owl.svg" />
+  <script defer type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fschoolsync5818back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.8"></script>
+  <script type="module" crossorigin src="/assets/index-C0taakGK.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/charts-d3-CO4GOJ6Q.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-DDrRsA0D.js">
+  <link rel="modulepreload" crossorigin href="/assets/charts-recharts-CF-2sZP5.js">
+  <link rel="modulepreload" crossorigin href="/assets/react-B8TKcEJp.js">
+  <link rel="modulepreload" crossorigin href="/assets/router-BeGRRc8N.js">
+  <link rel="modulepreload" crossorigin href="/assets/motion-BDj6zKc_.js">
+  <link rel="modulepreload" crossorigin href="/assets/signalr-GgQFR9o8.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-attendance-tracking-UnA6ZnQu.js">
+  <link rel="modulepreload" crossorigin href="/assets/icons-RVJwdOTC.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-class-schedule-management-Dq-MOTlr.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-faculty-management-Bk7eVXbk.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-profile-BqFaV_ku.js">
+  <link rel="modulepreload" crossorigin href="/assets/ui-components-DIupeHoE.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-activities-D7QD1nV3.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-resource-management-DBRo8xcz.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-student-management-B9kv3tep.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-grade-management-CuwFPi-b.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-student-dashboard-DIvVKs2A.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-teacher-dashboard-GkHohYDM.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-chat-BMpOAxlA.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-terminy-BZFVF0EP.js">
+  <link rel="modulepreload" crossorigin href="/assets/page-zapis-BlcU9DKr.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-BarM7xx0.css">
+</head>
+<body>
+<noscript>You need to enable JavaScript to run this app.</noscript>
+
+<div class="bg-stage" aria-hidden="true">
+  <div class="bg-image"></div>
+  <div class="clouds-bg"></div>
+  <div class="vignette"></div>
+</div>
+
+<div class="dhiwise-code" id="root"></div>
+
+<script>
+  (() => {
+    const prefersReduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduce) return;
+    const prime = document.querySelectorAll('#root main, #root .glass-card, #root .bg-card, #root .card, #root header, #root nav');
+    prime.forEach((el, i) => {
+      el.classList.add('reveal');
+      el.style.animationDelay = `${Math.min(i * 60, 600)}ms`;
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('reveal-in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+    document.querySelectorAll('.reveal, [data-reveal]').forEach(el => io.observe(el));
+    document.querySelectorAll('[data-stagger]').forEach((wrap) => {
+      const step = Number(wrap.getAttribute('data-stagger')) || 80;
+      Array.from(wrap.children).forEach((child, idx) => {
+        child.classList.add('stagger-child');
+        child.style.animationDelay = `${idx * step}ms`;
+      });
+    });
+  })();
+</script>
+</body>
+</html>

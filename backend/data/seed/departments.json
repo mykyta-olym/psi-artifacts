@@ -1,0 +1,10 @@
+[
+  {
+    "id": "dept-fei-kpi",
+    "name": "Katedra počítačov a informatiky",
+    "code": "FEI-KPI",
+    "faculty": "FEI",
+    "active": true,
+    "teachersCount": 1
+  }
+]

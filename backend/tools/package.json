@@ -1,0 +1,10 @@
+{
+  "name": "mais-backend-tools",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Utilities to export frontend mocks to JSON seeds for the backend",
+  "scripts": {
+    "export:seed": "node ./export-seed.mjs"
+  }
+}

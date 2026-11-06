@@ -1,0 +1,22 @@
+[
+  {
+    "id": "enr-kb079if-ing-26001198-p-2025",
+    "studentId": "kb079if-ing",
+    "courseCode": "26001198",
+    "scheduleEventId": "tt-26001198-mon-p",
+    "status": "confirmed",
+    "academicYear": "2025/2026",
+    "semester": "WS",
+    "confirmedAt": "2025-09-01T08:00:00Z"
+  },
+  {
+    "id": "enr-kb079if-ing-26001198-cl-2025",
+    "studentId": "kb079if-ing",
+    "courseCode": "26001198",
+    "scheduleEventId": "tt-26001198-wed-cl",
+    "status": "confirmed",
+    "academicYear": "2025/2026",
+    "semester": "WS",
+    "confirmedAt": "2025-09-01T08:00:00Z"
+  }
+]

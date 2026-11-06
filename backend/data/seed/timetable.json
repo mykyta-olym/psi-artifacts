@@ -1,0 +1,30 @@
+[
+  {
+    "id": "tt-26001198-mon-p",
+    "courseCode": "26001198",
+    "day": "Monday",
+    "slot": "09:10-10:50",
+    "type": "P",
+    "room": "N9-201(ZP1)",
+    "teacherEmail": "marek.horvath@university.edu",
+    "classGroupKeysJson": "[\"01-sk-FEI-CYB\"]",
+    "capacity": 120,
+    "faculty": "FEI",
+    "program": "Cybersecurity",
+    "requiredYear": 2
+  },
+  {
+    "id": "tt-26001198-wed-cl",
+    "courseCode": "26001198",
+    "day": "Wednesday",
+    "slot": "13:30-15:10",
+    "type": "CL",
+    "room": "N9-201(ZP1)",
+    "teacherEmail": "marek.horvath@university.edu",
+    "classGroupKeysJson": "[\"01-sk-FEI-CYB\"]",
+    "capacity": 30,
+    "faculty": "FEI",
+    "program": "Cybersecurity",
+    "requiredYear": 2
+  }
+]

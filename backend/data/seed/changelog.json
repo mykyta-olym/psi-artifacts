@@ -1,0 +1,32 @@
+[
+  {
+    "id": "cl-1",
+    "version": "2.0.4",
+    "date": "2025-03-08",
+    "title": "Activities improvements",
+    "points": [
+      "Fixed auto-generation on per-page change when returning after idle.",
+      "Refined actions dropdown with priority controls."
+    ]
+  },
+  {
+    "id": "cl-2",
+    "version": "2.0.3",
+    "date": "2025-03-02",
+    "title": "Profile upgrades",
+    "points": [
+      "Edit mode with Save/Cancel and role locking (Student→Teacher only).",
+      "Office Hours switch styling + .ics export."
+    ]
+  },
+  {
+    "id": "cl-3",
+    "version": "2.0.2",
+    "date": "2025-02-20",
+    "title": "Search UX",
+    "points": [
+      "Auto-search debounce 250ms across Activities.",
+      "Cmd/Ctrl+K command palette in Help."
+    ]
+  }
+]
